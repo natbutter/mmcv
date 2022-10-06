@@ -1,8 +1,22 @@
 # mmcv
 Docker and singularity instructions for running mmcv on Artemis HPC
 
+Build with 
+```
+sudo docker build . -t nbutter/mmcv:ubuntu1604
+```
 
-Build the singularity image from the docker repo
+Push with
+```
+sudo docker push nbutter/mmcv:ubuntu1604
+```
+
+Run with e.g.
+```
+sudo docker run --gpus all -it -v `pwd`:/project nbutter/mmcv:ubuntu1604 /bin/bash -c "cd /project && python check_installation.py"
+```
+
+On Artemis you can build the singularity image from the docker repo
 ```
 #!/bin/bash
 #PBS -P Training
@@ -21,7 +35,7 @@ export SINGULARITY_CACHEDIR=`pwd`
 singularity build mmcv_artemisGPU.img docker://nbutter/mmcv:ubuntu1604
 ```
 
-Run your workflow
+And run your workflow, e.g.
 ```
 #!/bin/bash
 #PBS -P Training
