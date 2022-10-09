@@ -4,13 +4,13 @@
 #To run this, mounting your current host directory in the container directory,
 # at /project, and excute the check_installtion script which is in your current
 # working direcotry run:
-#sudo docker run --gpus all -v `pwd`:/project nbutter/mmcv /bin/bash -c "cd /project && python check_installation.py"
+#sudo docker run --gpus all -v `pwd`:/project nbutter/mmcv:ubuntu1604 /bin/bash -c "cd /project && python check_installation.py"
 
 #To push to docker hub:
-#sudo docker push nbutter/mmcv
+#sudo docker push nbutter/mmcv:ubuntu1604
 
 #To build a singularity container
-#sudo singularity build mmcv.img docker://nbutter/mmcv
+#sudo singularity build mmcv.img docker://nbutter/mmcv:ubuntu1604
 
 #To the singularity image (noting singularity mounts the current folder by default)
 #singularity run --nv mmcv.img python check_installation.py
@@ -21,7 +21,7 @@ FROM nvidia/cuda:10.2-cudnn8-devel-ubuntu16.04
 MAINTAINER Nathaniel Butterworth USYD SIH
 
 #Create some directories to work with on Artmeis
-RUN mkdir /project && mkdir /scratch
+RUN mkdir /project && mkdir /scratch && touch /usr/bin/nvidia-smi
 
 #Install ubuntu libraires and packages
 RUN apt-get update -y && \
@@ -47,13 +47,19 @@ WORKDIR /build
 RUN conda install pip pandas matplotlib scikit-image
 RUN pip install --upgrade pip
 RUN conda install pytorch==1.8.0 torchvision==0.9.0 torchaudio==0.8.0 cudatoolkit=10.2 -c pytorch
+RUN git clone https://github.com/open-mmlab/mim.git && cd mim && pip install -e .
+RUN mim install mmcv-full
+RUN mim install mmdet
+
+#The below options did not appear to provide cuda to mmcv
 #RUN pip install torch==1.8.2 torchvision==0.9.2 torchaudio==0.8.2 --extra-index-url https://download.pytorch.org/whl/lts/1.8/cu102
 #RUN pip install mmcv-full -f https://download.openmmlab.com/mmcv/dist/1.8.0/10.2/index.html
-RUN git clone https://github.com/open-mmlab/mmcv.git && cd mmcv && \
-	pip install -r requirements/optional.txt && \
-	MMCV_WITH_OPS=1 pip install -e .
-RUN git clone https://github.com/open-mmlab/mmdetection.git && \
-  cd mmdetection && pip install -v -e .
+#RUN git clone https://github.com/open-mmlab/mmcv.git && cd mmcv && \
+#	pip install -r requirements/optional.txt && \
+#	pip install -r requirements/optional.txt && \
+#	MMCV_WITH_OPS=1 pip install -e .
+#RUN git clone https://github.com/open-mmlab/mmdetection.git && \
+# cd mmdetection && pip install -v -e .
 
 #Run the container
 CMD /bin/bash
