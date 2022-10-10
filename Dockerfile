@@ -50,6 +50,11 @@ RUN conda install pytorch==1.8.0 torchvision==0.9.0 torchaudio==0.8.0 cudatoolki
 RUN git clone https://github.com/open-mmlab/mim.git && cd mim && pip install -e .
 RUN mim install mmcv-full
 RUN mim install mmdet
+#Install TF. This requires specific versions of tf, cudnn, and cuda. So link approiately
+RUN export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib/:/usr/local/cuda-10.2/targets/x86_64-linux/lib/ && \
+	ln -s /usr/lib/x86_64-linux-gnu/libcudnn.so /usr/lib/x86_64-linux-gnu/libcudnn.so.7 && \
+	ln -s /usr/local/cuda-10.2/targets/x86_64-linux/lib/libcudart.so.10.2 /usr/lib/x86_64-linux-gnu/libcudart.so.10.1
+RUN python -m pip install tensorflow==2.3.0
 
 #The below options did not appear to provide cuda to mmcv
 #RUN pip install torch==1.8.2 torchvision==0.9.2 torchaudio==0.8.2 --extra-index-url https://download.pytorch.org/whl/lts/1.8/cu102
